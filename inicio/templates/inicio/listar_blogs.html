@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block h1_header %}
+    Lista de Posteos
+{% endblock h1_header %}
+
+{% block main %}
+    {% for blog in blogs %}
+        <div>
+            <p>Autor: {{ blog.autor }}</p>
+            <p>Fecha: {{ blog.fecha }}</p>
+            <p>Título: {{ blog.titulo }}</p>
+            <p>Subtítulo: {{ blog.subtitulo }}</p>
+            <p>Cuerpo: {{ blog.cuerpo }}</p>
+            {% if blog.imagen %}
+                <img src="{{ blog.imagen.url }}" alt="Imagen del blog">
+            {% endif %}
+            <a href="{% url 'ver_blog' blog.id %}">Ver Blog</a>
+        </div>
+    {% endfor %}
+{% endblock main %}
