@@ -13,13 +13,14 @@
         <p>Fecha: {{ blog.fecha }}</p>
     </div>
     {% if blog.imagen %}
-        <img src="{{ blog.imagen.url }}" alt="Imagen del blog">
+        <img src="{{ blog.imagen.url }}" alt="Imagen del blog" style="max-width: 100%; height: auto;">
     {% endif %}
     
     {% if blog.autor == request.user %}
-        <form action="{% url 'eliminar_blog' blog.id %}" method="post">
-            {% csrf_token %}
-            <button type="submit">Eliminar Blog</button>
-        </form>
-    {% endif %}
+    <form action="{% url 'eliminar_blog' blog.id %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Eliminar Blog</button>
+    </form>
+    <a href="{% url 'editar_blog' blog.id %}">Editar Blog</a>
+{% endif %}
 {% endblock main %}

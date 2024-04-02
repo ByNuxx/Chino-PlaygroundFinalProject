@@ -1,22 +1,21 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from .models import Blog
 from .forms import BlogForm
 from django.contrib.auth.forms import UserChangeForm, PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic.edit import CreateView
+from django.urls import reverse_lazy
 
-@login_required
-def crear_blog(request):
-    if request.method == 'POST':
-        form = BlogForm(request.POST, request.FILES)
-        if form.is_valid():
-            blog = form.save(commit=False)
-            blog.autor = request.user
-            blog.save()
-            return redirect('lista_blogs')
-    else:
-        form = BlogForm()
-    return render(request, 'inicio/crear_blog.html', {'form': form})
+class CrearBlogView(LoginRequiredMixin, CreateView):
+    model = Blog
+    form_class = BlogForm
+    template_name = 'inicio/crear_blog.html'
+    success_url = reverse_lazy('lista_blogs')
+
+    def form_valid(self, form):
+        form.instance.autor = self.request.user
+        return super().form_valid(form)
 
 def listar_blogs(request):
     blogs = Blog.objects.all()
@@ -25,6 +24,17 @@ def listar_blogs(request):
 def ver_blog(request, blog_id):
     blog = Blog.objects.get(id=blog_id)
     return render(request, 'inicio/ver_blog.html', {'blog': blog})
+
+def editar_blog(request, blog_id):
+    blog = Blog.objects.get(id=blog_id)
+    if request.method == 'POST':
+        form = BlogForm(request.POST, instance=blog)
+        if form.is_valid():
+            form.save()
+            return redirect('ver_blog', blog_id=blog.id)
+    else:
+        form = BlogForm(instance=blog)
+    return render(request, 'inicio/editar_blog.html', {'form': form})
 
 def eliminar_blog(request, blog_id):
     blog = get_object_or_404(Blog, id=blog_id)
@@ -37,15 +47,7 @@ def eliminar_blog(request, blog_id):
 def inicio(request):
     return render(request, 'inicio/inicio.html')
 
-def editar_perfil(request):
-    if request.method == 'POST':
-        form = UserChangeForm(request.POST, instance=request.user)
-        if form.is_valid():
-            form.save()
-            return redirect('inicio')  
-    else:
-        form = UserChangeForm(instance=request.user)
-    return render(request, 'accounts/editar_perfil.html', {'form': form})
+
 
 def cambiar_contraseña(request):
     if request.method == 'POST':

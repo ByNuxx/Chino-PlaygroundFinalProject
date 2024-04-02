@@ -1,17 +1,22 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.decorators import login_required
-from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.views import logout_then_login
 from .forms import SignUpForm
-from accounts.models import Profile
+from .forms import ProfileForm
+from django.urls import reverse_lazy
+from .models import Profile
+from django.views.generic.edit import UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView
 
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save()
+            Profile.objects.create(user=user)
             return redirect('login')
     else:
         form = SignUpForm()
@@ -31,21 +36,40 @@ def iniciar_sesion(request):
 def cerrar_sesion(request):
     return logout_then_login(request)
 
-@login_required
-def about_view(request):
-    if request.method == 'POST':
-        perfil_usuario, created = Profile.objects.get_or_create(user=request.user)
+class AboutView(LoginRequiredMixin, TemplateView):
+    template_name = 'inicio/about.html'
 
-        perfil_usuario.nombre = request.POST.get('nombre')
-        perfil_usuario.apellido = request.POST.get('apellido')
-        perfil_usuario.descripcion = request.POST.get('descripcion')
-        perfil_usuario.nacionalidad = request.POST.get('nacionalidad')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        profile = self.request.user.profile
+        context['profile'] = profile
+        context['profile_image_url'] = profile.foto_perfil.url if profile.foto_perfil else None
+        return context
 
-        perfil_usuario.save()
+    def post(self, request, *args, **kwargs):
+        profile = request.user.profile
+        form = ProfileForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            return self.render_to_response({'profile': profile})
+        else:
+            return self.render_to_response({'form': form, 'user': request.user})
+        
+class ProfileView(LoginRequiredMixin, TemplateView):
+    template_name = 'inicio/about.html'
 
-        return redirect('about')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        profile = self.request.user.profile
+        context['profile'] = profile
+        context['profile_image_url'] = profile.image.url if profile.image else None
+        return context
 
-    else:
-        perfil_usuario, created = Profile.objects.get_or_create(user=request.user)
+class ProfileEditView(LoginRequiredMixin, UpdateView):
+    model = Profile
+    form_class = ProfileForm
+    template_name = 'accounts/profile_edit.html'
+    success_url = reverse_lazy('about')
 
-        return render(request, 'inicio/about.html', {'perfil_usuario': perfil_usuario})
+    def get_object(self, queryset=None):
+        return self.request.user.profile

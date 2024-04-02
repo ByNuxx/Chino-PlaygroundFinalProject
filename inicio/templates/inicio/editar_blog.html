@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 
 {% block h1_header %}
-    Creacion de Blog
+    Editar Blog
 {% endblock h1_header %}
 
 {% block main %}
-    <h1>Crear Nuevo Blog</h1>
+    <h2>Editar Blog</h2>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Crear Blog</button>
+        <button type="submit">Guardar Cambios</button>
     </form>
 {% endblock main %}

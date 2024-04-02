@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block h1_header %}
+    Editar Perfil
+{% endblock h1_header %}
+
+{% block main %}
+    <div class="container">
+        <h2>Editar Información del Perfil</h2>
+        <form method="post">
+            {% csrf_token %}
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" name="nombre" value="{{ profile.nombre }}"><br><br>
+            <label for="apellido">Apellido:</label>
+            <input type="text" id="apellido" name="apellido" value="{{ profile.apellido }}"><br><br>
+            <label for="descripcion">Descripción:</label><br>
+            <textarea id="descripcion" name="descripcion">{{ profile.descripcion }}</textarea><br><br>
+            <label for="nacionalidad">Nacionalidad:</label>
+            <input type="text" id="nacionalidad" name="nacionalidad" value="{{ profile.nacionalidad }}"><br><br>
+            {% if profile.foto_perfil %}
+                <img src="{{ profile.foto_perfil.url }}" alt="Foto de perfil">
+            {% endif %}
+            <input type="file" name="foto_perfil">
+            <button type="submit">Guardar cambios</button>
+        </form>
+    </div>
+{% endblock main %}

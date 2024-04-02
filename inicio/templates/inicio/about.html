@@ -1,75 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acerca de mí</title>
-    <style>
-        /* Estilos para centrar verticalmente los elementos */
-        body, html {
-            height: 100%;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .container {
-            width: 70%; /* Ancho del contenedor */
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        form {
-            width: 100%;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        input, textarea {
-            width: calc(100% - 10px); /* Resta el padding */
-            padding: 5px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block h1_header %}
+    Acerca de mí
+{% endblock h1_header %}
+
+{% block main %}
     <div class="container">
-        <h1>Acerca de mí</h1>
-
-        <div class="personal-info">
-            <h2>Información Personal</h2>
-            <p><strong>Nombre:</strong> {{ user.first_name }}</p>
-            <p><strong>Apellido:</strong> {{ user.last_name }}</p>
-            <p><strong>Descripción:</strong> {{ user.descripcion }}</p>
-            <p><strong>Nacionalidad:</strong> {{ user.nacionalidad }}</p>
-        </div>
-
-        <div class="edit-info">
-            <h2>Editar Información</h2>
-            <form method="post">
-                {% csrf_token %}
-                <label for="nombre">Nombre:</label>
-                <input type="text" id="nombre" name="nombre" value="{{ user.first_name }}"><br><br>
-                <label for="apellido">Apellido:</label>
-                <input type="text" id="apellido" name="apellido" value="{{ user.last_name }}"><br><br>
-                <label for="descripcion">Descripción:</label><br>
-                <textarea id="descripcion" name="descripcion">{{ user.descripcion }}</textarea><br><br>
-                <label for="nacionalidad">Nacionalidad:</label>
-                <input type="text" id="nacionalidad" name="nacionalidad" value="{{ user.nacionalidad }}"><br><br>
-                <button type="submit">Guardar cambios</button>
-            </form>
-        </div>
+        <h2>Información Personal</h2>
+        <p><strong>Nombre:</strong> {{ profile.nombre }}</p>
+        <p><strong>Apellido:</strong> {{ profile.apellido }}</p>
+        <p><strong>Descripción:</strong> {{ profile.descripcion }}</p>
+        <p><strong>Nacionalidad:</strong> {{ profile.nacionalidad }}</p>
+        {% if profile.foto_perfil %}
+    <p>URL de la imagen de perfil: {{ profile.foto_perfil.url }}</p>
+    <img src="{{ profile.foto_perfil.url }}" alt="Foto de perfil">
+{% endif %}
     </div>
-</body>
-</html>
+{% endblock main %}
